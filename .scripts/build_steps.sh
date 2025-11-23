@@ -60,6 +60,8 @@ if [[ "${HOST_PLATFORM}" != "${BUILD_PLATFORM}" ]] && [[ "${HOST_PLATFORM}" != l
     EXTRA_CB_OPTIONS="${EXTRA_CB_OPTIONS:-} --test skip"
 fi
 
+# Enable experimental features until https://github.com/conda/ceps/pull/102 is merged and released
+EXTRA_CB_OPTIONS="${EXTRA_CB_OPTIONS:-} --experimental"
 
 ( endgroup "Configuring conda" ) 2> /dev/null
 

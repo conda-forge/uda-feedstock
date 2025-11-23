@@ -7,15 +7,53 @@ recipe:
   name: ${{ name|lower }}
   version: ${{ version }}
 
-source:
-  url: https://github.com//${{ username }}/${{ name }}/archive/refs/tags/${{ version }}.tar.gz
-  sha256: 188449998c94d377b8fc3d059b2e979669c2624b0f59f34a1674d5d2ba1b2db2
-  patches:
-    - patches/udaClient.patch
-    - patches/pr-83.patch
-
-build:
-  number: 0
+cache:
+  source:
+    url: https://github.com//${{ username }}/${{ name }}/archive/refs/tags/${{ version }}.tar.gz
+    sha256: 188449998c94d377b8fc3d059b2e979669c2624b0f59f34a1674d5d2ba1b2db2
+    patches:
+      - patches/udaClient.patch
+      - patches/pr-83.patch
+  build:
+    script:
+      - if: unix
+        then: build.sh
+      - if: win
+        then: build.bat
+  requirements:
+    build:
+      - ${{ compiler("cxx") }}
+      - ${{ stdlib("c") }}
+      - git
+      - cmake
+      - ninja
+      - pkg-config
+    host:
+      - libxml2-devel 2.14.*
+      - libboost-devel
+      - fmt
+      - openssl
+      - capnproto
+      - python ${{ python_min }}.*
+      - openjdk
+      - if: linux and x86_64
+        then: libtirpc
+      - if: win
+        then:
+          - dlfcn-win32
+          - zlib
+          - portablexdr
+    run:
+      - if: linux and x86_64
+        then: libtirpc
+    ignore_run_exports:
+      from_package:
+        - libxml2-devel
+        - python
+        - if: win
+          then:
+            - zlib
+            - dlfcn-win32
 
 outputs:
   # Client only (core library)
@@ -23,11 +61,8 @@ outputs:
       name: libuda-client
       version: ${{ version }}
     build:
-      script:
-        - if: unix
-          then: build_core.sh
-        - if: win
-          then: build_core.bat
+      number: 1
+      script: "echo 'Skipping build step for libuda-client subpackage'"
       files:
         include: ["**"]
         exclude:
@@ -53,39 +88,6 @@ outputs:
               - lib/libuda_cpp*
               - lib/libuda_jni*
     requirements:
-      build:
-        - ${{ compiler("cxx") }}
-        - ${{ stdlib("c") }}
-        - git
-        - cmake
-        - ninja
-        - pkg-config
-      host:
-        - libxml2-devel 2.14.*
-        - libboost-devel
-        - fmt
-        - openssl
-        - capnproto
-        - python ${{ python_min }}.*
-        - openjdk
-        - if: linux and x86_64
-          then: libtirpc
-        - if: win
-          then:
-            - dlfcn-win32
-            - zlib
-            - portablexdr
-      run:
-        - if: linux and x86_64
-          then: libtirpc
-      ignore_run_exports:
-        from_package:
-          - libxml2-devel
-          - python
-          - if: win
-            then:
-              - zlib
-              - dlfcn-win32
       run_exports:
         - ${{ pin_subpackage("libuda-client", upper_bound="x.x") }}
     tests:
@@ -110,6 +112,138 @@ outputs:
             - uda/serialisation/*.h
           files:
             - ${{ "Library/" if win }}lib/pkgconfig/uda-client.pc
+
+  # C++ client
+  - package:
+      name: uda-client-cpp
+      version: ${{ version }}
+    build:
+      number: 0
+      script: "echo 'Skipping build step for uda-client-cpp subpackage'"
+      files:
+        include:
+          - ${{ "Library/" if win }}include/uda/c++/*
+          - ${{ "Library/" if win }}lib/pkgconfig/uda-cpp.pc
+          - if: win
+            then:
+              - Library/bin/uda_cpp.*
+              - Library/lib/uda_cpp.*
+            else:
+              - lib/libuda_cpp*
+        exclude:
+          - ${{ "Library/" if win }}lib/*_static.*
+    requirements:
+      ignore_run_exports:
+        from_package:
+          - libboost-devel
+          - capnproto
+      run:
+        - libuda-client
+      run_exports:
+        - ${{ pin_subpackage("uda-client-cpp", upper_bound="x.x") }}
+    tests:
+      - package_contents:
+          files:
+            - ${{ "Library/" if win }}lib/pkgconfig/uda-cpp.pc
+          lib:
+            - uda_cpp
+          include:
+            - uda/c++/*.hpp
+
+  # Python client
+  - package:
+      name: pyuda
+      version: ${{ version }}
+    build:
+      number: 0
+      files:
+        include:
+          - if: unix
+            then: lib/python*/site-packages/*
+          - if: win
+            then: Lib/site-packages/*
+      script:
+        content:
+        - if: unix
+          then: ${{ PYTHON }} -m pip install --no-deps --no-build-isolation ${PREFIX}/python_installer/
+        - if: win
+          then: |
+            ${{ PYTHON }} -m pip install --no-deps --no-build-isolation "%LIBRARY_PREFIX%\python_installer"
+        env:
+          UDA_PYTHON_SHARED: "1"
+    requirements:
+      build:
+        - ${{ compiler("cxx") }}
+        - if: build_platform != target_platform
+          then:
+            - python
+            - cross-python_${{ target_platform }}
+            - cython
+            - numpy
+            - libuda-client
+      host:
+        - libuda-client
+        - libxml2-devel 2.14.*
+        - python
+        - pip
+        - setuptools
+        - cython
+        - numpy
+        - six
+      run:
+        - six
+        - progress
+      ignore_run_exports:
+        from_package:
+          - libxml2-devel
+          - libboost-devel
+          - capnproto
+          - fmt
+          - openssl
+    tests:
+      - python:
+          imports:
+            - pyuda
+          pip_check: true
+
+  # Java client
+  - package:
+      name: uda-client-java
+      version: ${{ version }}
+    build:
+      number: 0
+      script:
+        - if: unix
+          then: ln -sf $PREFIX/java/UDA-${{ version }}.jar $PREFIX/java/UDA.jar
+      files:
+        include:
+          - ${{ "Library/" if win }}java/*
+          - if: win
+            then:
+              - Library/bin/uda_jni.*
+              - Library/lib/uda_jni.*
+            else:
+              - lib/libuda_jni*
+        exclude:
+          - ${{ "Library/" if win }}lib/*_static.*
+    requirements:
+      run:
+        - libuda-client
+        - openjdk
+      ignore_run_exports:
+        from_package:
+          - libboost-devel
+          - capnproto
+      run_exports:
+        - ${{ pin_subpackage("uda-client-java", upper_bound="x.x") }}
+    tests:
+      - package_contents:
+          files:
+            - ${{ "Library/" if win }}java/UDA.jar
+            - if: unix
+              then: java/UDA-${{ version }}.jar
+          lib:
+            - uda_jni
 
 about:
   homepage: https://ukaea.github.io/UDA/

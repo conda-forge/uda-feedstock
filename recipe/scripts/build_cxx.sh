@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Set capnp executables for cross-compilation builds
+if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" == "1" || "${CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
+  export CAPNP_EXECUTABLE="${BUILD_PREFIX}/bin/capnp"
+  export CAPNPC_CXX_EXECUTABLE="${BUILD_PREFIX}/bin/capnpc-c++"
+fi
+
 # CMake extra configuration:
 extra_cmake_args=(
     -G Ninja

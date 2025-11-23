@@ -57,7 +57,7 @@ echo -e "\n\nRunning the build setup script."
 source run_conda_forge_build_setup
 
 # Enable experimental features until https://github.com/conda/ceps/pull/102 is merged and released
-export RATTLER_BUILD_EXPERIMENTAL=
+export RATTLER_BUILD_EXPERIMENTAL=true
 
 ( endgroup "Configuring conda" ) 2> /dev/null
 

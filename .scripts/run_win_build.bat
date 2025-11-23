@@ -68,6 +68,8 @@ if !errorlevel! neq 0 exit /b !errorlevel!
 echo Running build setup
 CALL run_conda_forge_build_setup
 
+:: Enable experimental features until https://github.com/conda/ceps/pull/102 is merged and released
+set "RATTLER_BUILD_EXPERIMENTAL=1"
 
 if !errorlevel! neq 0 exit /b !errorlevel!
 

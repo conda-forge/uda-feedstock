@@ -103,6 +103,8 @@ docker run ${DOCKER_RUN_ARGS} \
            -e BINSTAR_TOKEN \
            -e FEEDSTOCK_TOKEN \
            -e STAGING_BINSTAR_TOKEN \
+           # Enable rattler experimental features until https://github.com/conda/ceps/pull/102 is merged and released
+           -e RATTLER_BUILD_EXPERIMENTAL \
            "${DOCKER_IMAGE}" \
            bash \
            "/home/conda/feedstock_root/${PROVIDER_DIR}/build_steps.sh"

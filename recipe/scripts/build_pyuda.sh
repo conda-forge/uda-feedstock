@@ -31,7 +31,6 @@ extra_cmake_args=(
 )
 
 cmake ${CMAKE_ARGS} "${extra_cmake_args[@]}" \
-    -D CMAKE_BUILD_TYPE=Release \
     -B build -S "${SRC_DIR}"
 
 # Build

@@ -19,7 +19,7 @@ cmake %CMAKE_ARGS% ^
     -D NO_CLI=OFF ^
     -D XDR_LIBRARIES="%LIBRARY_LIB%\xdr.lib" ^
     -D XDR_INCLUDE_DIR="%LIBRARY_INC%\rpc" ^
-    -B build\uda -S "%SRC_DIR%" || exit /b 1
+    -B build -S "%SRC_DIR%" || exit /b 1
 
 :: Build and install
-cmake --build build\uda --target install || exit /b 1
+cmake --build build --target install || exit /b 1

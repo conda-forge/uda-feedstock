@@ -17,6 +17,8 @@ extra_cmake_args=(
     -D SERVER_ONLY=OFF
     # Enable Cap’n Proto serialisation
     -D ENABLE_CAPNP=ON
+    -D CAPNP_EXECUTABLE="${CAPNP_EXECUTABLE}"
+    -D CAPNPC_CXX_EXECUTABLE="${CAPNPC_CXX_EXECUTABLE}"
     # Disenable LibMemcached
     -D NO_MEMCACHE=ON
     # Wrappers

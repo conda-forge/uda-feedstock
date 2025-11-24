@@ -4,9 +4,11 @@
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR:-}" != "" ]]; then
   export CAPNP_EXECUTABLE="${PREFIX}/bin/capnp"
   export CAPNPC_CXX_EXECUTABLE="${PREFIX}/bin/capnpc-c++"
+  export Java_JAVA_EXECUTABLE="${PREFIX}/bin/java"
 else
   export CAPNP_EXECUTABLE="${BUILD_PREFIX}/bin/capnp"
   export CAPNPC_CXX_EXECUTABLE="${BUILD_PREFIX}/bin/capnpc-c++"
+  export Java_JAVA_EXECUTABLE="${BUILD_PREFIX}/bin/java"
 fi
 
 # CMake extra configuration:
@@ -34,8 +36,8 @@ extra_cmake_args=(
     # CLI
     -D NO_CLI=ON
     # Java JNI
-    -D JNI_INCLUDE_DIRS="${PREFIX}/lib/jvm/include"
-    -D JNI_LIBRARIES="${PREFIX}/lib/jvm/lib"
+    -D JAVA_HOME="${PREFIX}/lib/jvm"
+    -D Java_JAVA_EXECUTABLE="${Java_JAVA_EXECUTABLE}"
 )
 
 cmake ${CMAKE_ARGS} "${extra_cmake_args[@]}" \

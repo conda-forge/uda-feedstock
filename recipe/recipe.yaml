@@ -281,6 +281,7 @@ outputs:
         - cmake
         - ninja
         - pkg-config
+        - openjdk
         - if: build_platform != target_platform
           then:
             - capnproto
@@ -290,7 +291,6 @@ outputs:
         - fmt
         - openssl
         - capnproto
-        - openjdk
         - if: linux and x86_64
           then: libtirpc
         - if: win

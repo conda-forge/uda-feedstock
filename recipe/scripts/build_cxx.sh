@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Set capnp executables for cross-compilation builds
-if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" == "1" || "${CROSSCOMPILING_EMULATOR:-}" == "" ]]; then
+if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR:-}" != "" ]]; then
+  export CAPNP_EXECUTABLE="${PREFIX}/bin/capnp"
+  export CAPNPC_CXX_EXECUTABLE="${PREFIX}/bin/capnpc-c++"
+else
   export CAPNP_EXECUTABLE="${BUILD_PREFIX}/bin/capnp"
   export CAPNPC_CXX_EXECUTABLE="${BUILD_PREFIX}/bin/capnpc-c++"
 fi

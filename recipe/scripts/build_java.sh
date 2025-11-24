@@ -32,7 +32,7 @@ extra_cmake_args=(
     -D NO_IDL_WRAPPER=ON
     -D FAT_IDL=OFF
     # CLI
-    -D NO_CLI=
+    -D NO_CLI=ON
     # Java JNI
     -D JNI_INCLUDE_DIRS="${PREFIX}/lib/jvm/include"
     -D JNI_LIBRARIES="${PREFIX}/lib/jvm/lib"

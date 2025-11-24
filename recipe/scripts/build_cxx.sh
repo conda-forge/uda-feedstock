@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Set capnp executables for cross-compilation builds
+if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR:-}" != "" ]]; then
+  export CAPNP_EXECUTABLE="${PREFIX}/bin/capnp"
+  export CAPNPC_CXX_EXECUTABLE="${PREFIX}/bin/capnpc-c++"
+else
+  export CAPNP_EXECUTABLE="${BUILD_PREFIX}/bin/capnp"
+  export CAPNPC_CXX_EXECUTABLE="${BUILD_PREFIX}/bin/capnpc-c++"
+fi
+
 # CMake extra configuration:
 extra_cmake_args=(
     -G Ninja
@@ -11,21 +20,22 @@ extra_cmake_args=(
     -D SERVER_ONLY=OFF
     # Enable Cap’n Proto serialisation
     -D ENABLE_CAPNP=ON
+    -D CAPNP_EXECUTABLE="${CAPNP_EXECUTABLE}"
+    -D CAPNPC_CXX_EXECUTABLE="${CAPNPC_CXX_EXECUTABLE}"
     # Disenable LibMemcached
     -D NO_MEMCACHE=ON
     # Wrappers
     -D NO_WRAPPERS=OFF
     -D NO_CXX_WRAPPER=OFF
-    -D NO_PYTHON_WRAPPER=OFF
-    -D NO_JAVA_WRAPPER=OFF
+    -D NO_PYTHON_WRAPPER=ON
+    -D NO_JAVA_WRAPPER=ON
     -D NO_IDL_WRAPPER=ON
     -D FAT_IDL=OFF
     # CLI
-    -D NO_CLI=OFF
+    -D NO_CLI=ON
 )
 
 cmake ${CMAKE_ARGS} "${extra_cmake_args[@]}" \
-    -D CMAKE_BUILD_TYPE=Release \
     -B build -S "${SRC_DIR}"
 
 # Build and install

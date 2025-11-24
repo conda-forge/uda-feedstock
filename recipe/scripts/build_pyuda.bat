@@ -1,8 +1,5 @@
 @echo off
 
-:: Set environment variables for UDA build
-set UDA_PYTHON_SHARED=ON
-
 :: === Build & Install UDA client ===
 :: Configure and build
 cmake %CMAKE_ARGS% ^
@@ -14,15 +11,20 @@ cmake %CMAKE_ARGS% ^
     -D ENABLE_CAPNP=ON ^
     -D NO_MEMCACHE=ON ^
     -D NO_WRAPPERS=OFF ^
-    -D NO_CXX_WRAPPER=OFF ^
+    -D NO_CXX_WRAPPER=ON ^
     -D NO_PYTHON_WRAPPER=OFF ^
-    -D NO_JAVA_WRAPPER=OFF ^
+    -D NO_JAVA_WRAPPER=ON ^
     -D NO_IDL_WRAPPER=ON ^
     -D FAT_IDL=OFF ^
-    -D NO_CLI=OFF ^
+    -D NO_CLI=ON ^
     -D XDR_LIBRARIES="%LIBRARY_LIB%\xdr.lib" ^
     -D XDR_INCLUDE_DIR="%LIBRARY_INC%\rpc" ^
-    -B build\uda -S "%SRC_DIR%" || exit /b 1
+    -B build -S "%SRC_DIR%" || exit /b 1
 
-:: Build and install
-cmake --build build\uda --target install || exit /b 1
+:: Build
+cmake --build build --target install || exit /b 1
+
+:: Install Python wrapper
+:: Set environment variables for UDA build
+set UDA_PYTHON_SHARED=ON
+%PYTHON% -m pip install --no-deps --no-build-isolation -vvv "%LIBRARY_PREFIX%\python_installer" || exit /b 1

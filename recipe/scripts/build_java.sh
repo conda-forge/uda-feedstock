@@ -4,7 +4,7 @@
 if [[ "${CONDA_BUILD_CROSS_COMPILATION:-}" != "1" || "${CROSSCOMPILING_EMULATOR:-}" != "" ]]; then
   export CAPNP_EXECUTABLE="${PREFIX}/bin/capnp"
   export CAPNPC_CXX_EXECUTABLE="${PREFIX}/bin/capnpc-c++"
-  export Java_JAVA_EXECUTABLE="${PREFIX}/bin/java"
+  export Java_JAVA_EXECUTABLE="${PREFIX}/lib/jvm/bin/java"
 else
   export CAPNP_EXECUTABLE="${BUILD_PREFIX}/bin/capnp"
   export CAPNPC_CXX_EXECUTABLE="${BUILD_PREFIX}/bin/capnpc-c++"

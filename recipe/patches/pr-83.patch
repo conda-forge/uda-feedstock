@@ -63,19 +63,6 @@
    set( CPACK_TEMPORARY_INSTALL_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
    set( CPACK_PACKAGE_DIRECTORY "${CMAKE_WIN_BINARY_DIR}" )
    set( CPACK_TEMPORARY_DIRECTORY "${CMAKE_BINARY_DIR}/cpack" )
---- a/extlib/portablexdr-4.9.1/CMakeLists.txt
-+++ b/extlib/portablexdr-4.9.1/CMakeLists.txt
-@@ -51,7 +51,9 @@ install(
- )
-
- install(
--    TARGETS ${PROJECT_NAME}
--    DESTINATION lib
-+  TARGETS ${PROJECT_NAME}
-+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
- )
 
 --- a/source/bin/CMakeLists.txt
 +++ b/source/bin/CMakeLists.txt

@@ -9,3 +9,14 @@
  public:
      ResultList(std::unordered_map<int, size_t> indices, Client& client);
      const Result& at(int handle) const;
+
+--- a/source/clientserver/udaStructs.h
++++ b/source/clientserver/udaStructs.h
+@@ -430,7 +430,7 @@
+
+ void freeClientPutDataBlockList(PUTDATA_BLOCK_LIST* putDataBlockList);
+
+-void freeDataBlock(DATA_BLOCK* data_block);
++LIBRARY_API void freeDataBlock(DATA_BLOCK* data_block);
+
+ void freeDataBlockList(DATA_BLOCK_LIST* data_block_list);

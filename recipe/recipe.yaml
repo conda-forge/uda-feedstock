@@ -15,9 +15,10 @@ source:
     - patches/pr-83.patch
     - patches/pr-118-remove_cxx_std.patch
     - patches/exclude-capnp-from-pkgconfig.patch
+    - patches/export-symbols.patch
 
 build:
-  number: 5
+  number: 6
 
 outputs:
   # Client only (core library)

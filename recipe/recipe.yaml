@@ -18,7 +18,7 @@ source:
     - patches/export-symbols.patch
 
 build:
-  number: 7
+  number: 8
 
 outputs:
   # Client only (core library)

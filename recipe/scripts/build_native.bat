@@ -11,12 +11,12 @@ cmake %CMAKE_ARGS% ^
     -D ENABLE_CAPNP=ON ^
     -D NO_MEMCACHE=ON ^
     -D NO_WRAPPERS=OFF ^
-    -D NO_CXX_WRAPPER=ON ^
-    -D NO_PYTHON_WRAPPER=ON ^
+    -D NO_CXX_WRAPPER=OFF ^
+    -D NO_PYTHON_WRAPPER=OFF ^
     -D NO_JAVA_WRAPPER=OFF ^
     -D NO_IDL_WRAPPER=ON ^
     -D FAT_IDL=OFF ^
-    -D NO_CLI=ON ^
+    -D NO_CLI=OFF ^
     -D XDR_LIBRARIES="%LIBRARY_LIB%\xdr.lib" ^
     -D XDR_INCLUDE_DIR="%LIBRARY_INC%\rpc" ^
     -B build -S "%SRC_DIR%" || exit /b 1

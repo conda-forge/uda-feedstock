@@ -1,14 +1,12 @@
 context:
-  name: UDA
   version: "2.9.3"
-  username: ukaea
 
 recipe:
-  name: ${{ name|lower }}
+  name: uda
   version: ${{ version }}
 
 source:
-  url: https://github.com//${{ username }}/${{ name }}/archive/refs/tags/${{ version }}.tar.gz
+  url: https://github.com//ukaea/UDA/archive/refs/tags/${{ version }}.tar.gz
   sha256: c3627ebac5bf5cd10c25cbf79bc4c2adb33989c3860810f0512c4f15ad77e84e
   patches:
     - patches/udaClient.patch

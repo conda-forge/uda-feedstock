@@ -19,40 +19,13 @@ build:
   number: 10
 
 outputs:
-  # Client only (core library)
-  - package:
-      name: libuda-client
-      version: ${{ version }}
+  - staging:
+      name: uda-native-build
     build:
       script:
-        - if: unix
-          then: scripts/build_core.sh
-        - if: win
-          then: scripts/build_core.bat
-      files:
-        include: ["**"]
-        exclude:
-          - ${{ "Library/" if win }}bin/install_plugin
-          - ${{ "Library/" if win }}bin/*.py
-          - ${{ "Library/" if win }}etc/*
-          - ${{ "Library/" if win }}include/uda/c++/*
-          - ${{ "Library/" if win }}lib/pkgconfig/uda-cpp.pc
-          - ${{ "Library/" if win }}lib/pkgconfig/uda-fat-*.pc
-          - ${{ "Library/" if win }}lib/pkgconfig/uda-plugins.pc
-          - ${{ "Library/" if win }}lib/*_static.*
-          - ${{ "Library/" if win }}lib/python*
-          - ${{ "Library/" if win }}java/*
-          - ${{ "Library/" if win }}python_installer/*
-          - ${{ "Library/" if win }}modulefiles/*
-          - if: win
-            then:
-              - Library/bin/uda_cpp.*
-              - Library/bin/uda_jni.*
-              - Library/lib/uda_cpp.*
-              - Library/lib/uda_jni.*
-            else:
-              - lib/libuda_cpp*
-              - lib/libuda_jni*
+        file: scripts/build_native
+        env:
+          UDA_VERSION: ${{ version }}
     requirements:
       build:
         - ${{ compiler("cxx") }}
@@ -60,16 +33,18 @@ outputs:
         - git
         - cmake
         - ninja
-        - pkg-config
+        - pkgconf
         - if: build_platform != target_platform
           then:
             - capnproto
+            - openjdk
       host:
         - libxml2-devel 2.14.*
         - libboost-devel
         - fmt
         - openssl
         - capnproto
+        - openjdk
         - if: linux and x86_64
           then: libtirpc
         - if: win
@@ -77,11 +52,35 @@ outputs:
             - dlfcn-win32
             - zlib
             - portablexdr
+
+  # Client only (core library)
+  - package:
+      name: libuda-client
+      version: ${{ version }}
+    inherit: uda-native-build
+    build:
+      files:
+        include:
+          - ${{ "Library/" if win }}include/uda/**
+          - ${{ "Library/" if win }}lib/pkgconfig/uda-client*.pc
+          - if: win
+            then:
+              - Library/bin/uda_*.{exe,dll}
+              - Library/lib/uda_*.lib
+            else:
+              - bin/uda_*
+              - lib/libuda_*.{so,so.*,dylib}
+        exclude:
+          - ${{ "Library/" if win }}include/uda/c++/**
+          - "**/{bin,lib}/*uda_{cpp,jni}*"
+          - Library/lib/uda_*_static.lib
+    requirements:
       run:
         - if: linux and x86_64
           then: libtirpc
       ignore_run_exports:
         from_package:
+          - openjdk
           # capnproto for windows is used for static linking only
           - if: win
             then: capnproto
@@ -114,15 +113,11 @@ outputs:
   - package:
       name: uda-cpp
       version: ${{ version }}
+    inherit: uda-native-build
     build:
-      script:
-        - if: unix
-          then: scripts/build_cxx.sh
-        - if: win
-          then: scripts/build_cxx.bat
       files:
         include:
-          - ${{ "Library/" if win }}include/uda/c++/*
+          - ${{ "Library/" if win }}include/uda/c++/**
           - ${{ "Library/" if win }}lib/pkgconfig/uda-cpp.pc
           - if: win
             then:
@@ -133,31 +128,9 @@ outputs:
         exclude:
           - ${{ "Library/" if win }}lib/*_static.*
     requirements:
-      build:
-        - ${{ compiler("cxx") }}
-        - ${{ stdlib("c") }}
-        - git
-        - cmake
-        - ninja
-        - pkg-config
-        - if: build_platform != target_platform
-          then:
-            - capnproto
-      host:
-        - libxml2-devel 2.14.*
-        - libboost-devel
-        - fmt
-        - openssl
-        - capnproto
-        - if: linux and x86_64
-          then: libtirpc
-        - if: win
-          then:
-            - dlfcn-win32
-            - zlib
-            - portablexdr
       ignore_run_exports:
         from_package:
+          - openjdk
           - libxml2-devel
           - libboost-devel
           - capnproto
@@ -182,29 +155,18 @@ outputs:
   - package:
       name: pyuda
       version: ${{ version }}
+    inherit: uda-native-build
     build:
-      script:
-        - if: unix
-          then: scripts/build_pyuda.sh
-        - if: win
-          then: scripts/build_pyuda.bat
+      script: scripts/build_pyuda
       files:
         include:
-          - if: unix
-            then: lib/python*/site-packages/*
-          - if: win
-            then: Lib/site-packages/*
+          - "**/site-packages/**"
     requirements:
       build:
         - ${{ compiler("cxx") }}
         - ${{ stdlib("c") }}
-        - git
-        - cmake
-        - ninja
-        - pkg-config
         - if: build_platform != target_platform
           then:
-            - capnproto
             - python
             - cross-python_${{ target_platform }}
             - cython
@@ -235,6 +197,7 @@ outputs:
         - progress
       ignore_run_exports:
         from_package:
+          - openjdk
           - libxml2-devel
           - libboost-devel
           - fmt
@@ -255,12 +218,8 @@ outputs:
   - package:
       name: uda-java
       version: ${{ version }}
+    inherit: uda-native-build
     build:
-      script:
-        - if: unix
-          then: scripts/build_java.sh
-        - if: win
-          then: scripts/build_java.bat
       files:
         include:
           - ${{ "Library/" if win }}java/*
@@ -273,31 +232,6 @@ outputs:
         exclude:
           - ${{ "Library/" if win }}lib/*_static.*
     requirements:
-      build:
-        - ${{ compiler("cxx") }}
-        - ${{ stdlib("c") }}
-        - git
-        - cmake
-        - ninja
-        - pkg-config
-        - if: build_platform != target_platform
-          then:
-            - capnproto
-            - openjdk
-      host:
-        - libxml2-devel 2.14.*
-        - libboost-devel
-        - fmt
-        - openssl
-        - capnproto
-        - openjdk
-        - if: linux and x86_64
-          then: libtirpc
-        - if: win
-          then:
-            - dlfcn-win32
-            - zlib
-            - portablexdr
       run:
         - libuda-client
         - openjdk
